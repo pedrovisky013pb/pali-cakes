@@ -59,6 +59,15 @@ const isCatalogActive = pathname.startsWith("/catalogo");
     </nav>
 
     <a
+      href="/carrinho"
+      class="navbar__cart navbar__cart--mobile"
+      aria-label="Abrir carrinho de encomenda, 0 artigos"
+    >
+      <span aria-hidden="true">🛒</span>
+      <span data-cart-count>0</span>
+    </a>
+
+    <a
       href="/"
       class="navbar__logo"
       aria-label="Ir para a página inicial"

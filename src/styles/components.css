@@ -363,6 +363,11 @@
 
 /* Carrinho */
 
+/* Carrinho do cabeçalho no telemóvel: escondido no desktop (ver responsive.css). */
+.navbar__cart.navbar__cart--mobile {
+  display: none;
+}
+
 .navbar__cart {
 
   position: relative;

@@ -51,13 +51,39 @@
     grid-template-columns: 1fr auto 1fr;
   }
 
+  /* No desktop o logo é absoluto no centro; no mobile passa a ocupar a
+     coluna do meio da grelha (absoluto + grid-column deixava-o desalinhado). */
   .navbar__logo {
+    position: static;
     grid-column: 2;
+    grid-row: 1;
     justify-self: center;
+    transform: none;
+  }
+
+  .navbar__container {
+    min-height: 90px;
   }
 
   .navbar__toggle {
     grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* Carrinho sempre à vista no telemóvel (à esquerda do logo). */
+  .navbar__cart.navbar__cart--mobile {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+
+    font-size: 1.1rem !important;
+  }
+
+  .navbar__cart.navbar__cart--mobile span {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
   }
 }
 
@@ -66,9 +92,13 @@
     padding-block: 10px;
   }
 
+  .navbar__container {
+    min-height: 72px;
+  }
+
   .navbar__logo img {
     width: auto;
-    height: 34px;
+    height: 52px;
   }
 
   .mobile-menu {
@@ -997,5 +1027,39 @@
 
   .packs-cta .button {
     width: 100%;
+  }
+}
+
+/* =========================
+   MOBILE — LEGIBILIDADE E TOQUE
+   Nenhum texto abaixo de 12px e ligações com área de toque confortável.
+========================= */
+
+@media (max-width: 620px) {
+  .product-card__category,
+  .review-card__client span,
+  .product-detail__helper,
+  .checkout-option small,
+  .checkout-form__helper,
+  .checkout-summary > p,
+  .portfolio-filters button,
+  .portfolio-item__overlay span,
+  .portfolio-item__overlay small {
+    font-size: 0.75rem;
+  }
+
+  .product-card__link,
+  .about-preview__link,
+  .checkout-summary > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+
+  .checkout-option input,
+  .checkout-consent input,
+  .reviews-consent input {
+    width: 20px;
+    height: 20px;
   }
 }
