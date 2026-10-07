@@ -7,7 +7,8 @@ import {
   DESCONTO_CUPAO_PERCENTAGEM,
   type OrderItemInput
 } from "@/lib/orders";
-import { getCart, clearCart, type CartItem } from "./cart";
+import { getCart, clearCart, getUnitPrice, type CartItem } from "./cart";
+import { currentPriceTier } from "@/lib/pricing";
 import { calcularEntrega } from "@/lib/delivery";
 
 
@@ -102,7 +103,7 @@ async function actualizarEntrega(): Promise<void> {
     if (resultado) {
       resultado.textContent = entrega.foraDoLimite
         ? "Infelizmente não entregamos a partir de 45 km. Pode optar por levantamento ou combinar connosco um ponto de recolha mais próximo."
-        : "Não efectuamos entregas nesta zona. Pode optar por levantamento ou contactar-nos.";
+        : "Não efetuamos entregas nesta zona. Pode optar por levantamento ou contactar-nos.";
       resultado.className = "checkout-delivery__result is-error";
       resultado.hidden = false;
     }
@@ -132,11 +133,13 @@ async function actualizarEntrega(): Promise<void> {
 
 function calculateKnownTotal(cart: CartItem[]): number {
   return cart.reduce((total, item) => {
-    if (item.price === null) {
+    const unitPrice = getUnitPrice(item);
+
+    if (unitPrice === null) {
       return total;
     }
 
-    return total + item.price * item.quantity;
+    return total + unitPrice * item.quantity;
   }, 0);
 }
 
@@ -158,14 +161,32 @@ function createSummaryItem(item: CartItem): HTMLElement {
 
   const details = document.createElement("span");
 
+  const unitPrice = getUnitPrice(item);
+
   details.textContent =
     `${item.quantity} × ${
-      item.price === null
+      unitPrice === null
         ? item.priceLabel
-        : currencyFormatter.format(item.price)
+        : currencyFormatter.format(unitPrice)
     }`;
 
   content.append(name, details);
+
+  // Preço por quantidade: deixar claro quanto fica cada unidade.
+  const tier = currentPriceTier(item.priceTiers, item.quantity);
+
+  if (tier) {
+    const tierNote = document.createElement("span");
+
+    tierNote.className = "checkout-summary__tier";
+    tierNote.textContent =
+      `Preço por quantidade: cada unidade fica a ${currencyFormatter.format(tier.price)}` +
+      (item.price !== null && item.price > tier.price
+        ? ` (em vez de ${currencyFormatter.format(item.price)}).`
+        : ".");
+
+    content.append(tierNote);
+  }
 
   if (item.flavor) {
     const flavor = document.createElement("span");
@@ -391,7 +412,7 @@ function actualizarLinhaDesconto(desconto: number, cart: CartItem[]): void {
   const nota = document.querySelector<HTMLElement>("[data-discount-note]");
   if (!linha || !rotulo || !valor) return;
 
-  const temSobConsulta = cart.some((item) => item.price === null);
+  const temSobConsulta = cart.some((item) => getUnitPrice(item) === null);
 
   linha.hidden = !cupaoAplicado;
 
@@ -595,7 +616,7 @@ function updateScheduleField(isDelivery: boolean): void {
     label.textContent = "Horário de recolha preferido";
     input.placeholder = "Ex: ao final da manhã, por volta das 15h...";
     helper.textContent =
-      "Recolhas: seg a sex, 10h às 16h · sáb, dom e feriados, 10h às 12h. Vamos contactá-lo(a) para confirmar o horário exacto.";
+      "Recolhas: seg a sex, 10h às 16h · sáb, dom e feriados, 10h às 12h. Vamos contactá-lo(a) para confirmar o horário exato.";
   }
 }
 
@@ -617,7 +638,7 @@ function toOrderItems(cart: CartItem[]): OrderItemInput[] {
     nome: item.name,
     categoria: item.categorySlug,
     quantidade: item.quantity,
-    preco: item.price,
+    preco: getUnitPrice(item),
     personalizacao:
       item.flavor || item.size
         ? {

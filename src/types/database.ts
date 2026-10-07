@@ -39,11 +39,22 @@ export interface VarianteTamanho {
   imagem?: string;
 }
 
+/**
+ * Preço por quantidade: a partir de `quantidade_minima` unidades, todas as
+ * unidades passam a custar `preco` (ex.: brigadeiros 30+ a 1,70 €).
+ */
+export interface EscalaoPreco {
+  quantidade_minima: number;
+  preco: number;
+}
+
 /** Formato usado dentro da coluna jsonb `produtos.opcoes`. */
 export interface OpcoesProduto {
   sabores?: VarianteSabor[];
   grupos_variantes?: GrupoVariante[];
   tamanhos?: VarianteTamanho[];
+  /** Preço por quantidade (escalões), do menor para o maior. */
+  precos_quantidade?: EscalaoPreco[];
   /** Conteúdo de um pack, uma linha por item ("Bolo — 1 kg"). */
   conteudo?: string[];
   [chave: string]: unknown;

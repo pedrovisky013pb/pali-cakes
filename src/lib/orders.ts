@@ -132,7 +132,7 @@ export async function criarEncomenda(
 
     return {
       ok: false,
-      erro: "Não foi possível enviar a encomenda. Tente novamente ou contacte-nos directamente."
+      erro: "Não foi possível enviar a encomenda. Tente novamente ou contacte-nos diretamente."
     };
   }
 

@@ -69,6 +69,13 @@ function aplicarPrecoDoSabor(
   if (addToCartButton) {
     addToCartButton.dataset.productPrice = preco !== null ? String(preco) : "";
   }
+
+  // Produtos com preço por quantidade: recalcula o preço por unidade.
+  if (document.querySelector("[data-price-tiers]")) {
+    document
+      .querySelector<HTMLInputElement>("[data-quantity-input]")
+      ?.dispatchEvent(new Event("change"));
+  }
 }
 
 function bindFlavorSelectors(): void {

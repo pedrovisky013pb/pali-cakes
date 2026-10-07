@@ -13,7 +13,8 @@ import type {
   Categoria,
   VarianteSabor,
   GrupoVariante,
-  VarianteTamanho
+  VarianteTamanho,
+  EscalaoPreco
 } from "@/types/database";
 
 let produtos: Produto[] = [];
@@ -278,6 +279,19 @@ function criarCartao(produto: Produto, isNovo = false): HTMLElement {
         </button>
       </div>
 
+      <div class="admin-product__flavors">
+        <span class="admin-product__flavors-label">
+          Preço por quantidade
+          <small>Desconto por quantidade (ex.: brigadeiros). A partir do número de unidades indicado, todas as unidades passam a custar esse preço. Abaixo do primeiro valor vale o preço normal do produto.</small>
+        </span>
+
+        <div class="admin-flavor-rows" data-tier-rows></div>
+
+        <button type="button" class="button button--secondary button--small" data-add-tier>
+          + Adicionar preço por quantidade
+        </button>
+      </div>
+
       <div class="admin-product__actions">
         <button type="button" class="button button--primary" data-guardar>
           ${isNovo ? "Criar produto" : "Guardar"}
@@ -428,6 +442,51 @@ function criarLinhaTamanho(tamanho: TamanhoEdicao, indice: number): string {
       />
 
       <button type="button" class="admin-flavor-row__remove" data-remove-size aria-label="Remover tamanho">
+        ✕
+      </button>
+    </div>
+  `;
+}
+
+interface EscalaoEdicao {
+  minimo: string;
+  preco: string;
+}
+
+function criarLinhaEscalao(escalao: EscalaoEdicao, indice: number): string {
+  return `
+    <div class="admin-flavor-row admin-flavor-row--tier" data-tier-row data-indice="${indice}">
+      <label class="admin-flavor-row__tier-field">
+        <span>A partir de</span>
+        <input
+          type="number"
+          step="1"
+          min="2"
+          max="999"
+          class="admin-flavor-row__nome"
+          data-tier-minimo
+          value="${escalao.minimo}"
+          placeholder="Ex: 30"
+          aria-label="A partir de quantas unidades"
+        />
+        <span>un.</span>
+      </label>
+
+      <label class="admin-flavor-row__tier-field">
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          class="admin-flavor-row__nome"
+          data-tier-preco
+          value="${escalao.preco}"
+          placeholder="Ex: 1.70"
+          aria-label="Preço por unidade"
+        />
+        <span>€ / un.</span>
+      </label>
+
+      <button type="button" class="admin-flavor-row__remove" data-remove-tier aria-label="Remover preço por quantidade">
         ✕
       </button>
     </div>
@@ -672,6 +731,46 @@ function ligarEventos(artigo: HTMLElement, produto: Produto, isNovo = false): vo
     renderizarTamanhos();
   });
 
+  // Preço por quantidade (escalões), editado antes de "Guardar".
+  const escaloes: EscalaoEdicao[] = (produto.opcoes?.precos_quantidade ?? []).map((escalao) => ({
+    minimo: String(escalao.quantidade_minima ?? ""),
+    preco: String(escalao.preco ?? "")
+  }));
+
+  const escaloesContainer = artigo.querySelector<HTMLElement>("[data-tier-rows]");
+
+  const renderizarEscaloes = (): void => {
+    if (!escaloesContainer) return;
+
+    escaloesContainer.innerHTML = escaloes
+      .map((escalao, indice) => criarLinhaEscalao(escalao, indice))
+      .join("");
+
+    escaloesContainer.querySelectorAll<HTMLElement>("[data-tier-row]").forEach((linha) => {
+      const indice = Number(linha.dataset.indice);
+
+      linha.querySelector<HTMLInputElement>("[data-tier-minimo]")?.addEventListener("input", (evento) => {
+        escaloes[indice].minimo = (evento.target as HTMLInputElement).value;
+      });
+
+      linha.querySelector<HTMLInputElement>("[data-tier-preco]")?.addEventListener("input", (evento) => {
+        escaloes[indice].preco = (evento.target as HTMLInputElement).value;
+      });
+
+      linha.querySelector("[data-remove-tier]")?.addEventListener("click", () => {
+        escaloes.splice(indice, 1);
+        renderizarEscaloes();
+      });
+    });
+  };
+
+  renderizarEscaloes();
+
+  artigo.querySelector("[data-add-tier]")?.addEventListener("click", () => {
+    escaloes.push({ minimo: "", preco: "" });
+    renderizarEscaloes();
+  });
+
   // Galeria de fotos extra, editada antes de "Guardar".
   const galeria: string[] = Array.isArray(produto.imagens) ? [...produto.imagens] : [];
 
@@ -836,6 +935,26 @@ function ligarEventos(artigo: HTMLElement, produto: Produto, isNovo = false): vo
       })
       .filter((tamanho) => tamanho.nome !== "");
 
+    // Escalões válidos, do menor para o maior, sem quantidades repetidas.
+    const escaloesValidos: EscalaoPreco[] = escaloes
+      .map((escalao) => ({
+        quantidade_minima: Math.trunc(Number(escalao.minimo)),
+        preco: Number(escalao.preco.replace(",", "."))
+      }))
+      .filter(
+        (escalao) =>
+          Number.isFinite(escalao.quantidade_minima) &&
+          escalao.quantidade_minima >= 2 &&
+          escalao.quantidade_minima <= 999 &&
+          Number.isFinite(escalao.preco) &&
+          escalao.preco > 0
+      )
+      .sort((a, b) => a.quantidade_minima - b.quantidade_minima)
+      .filter(
+        (escalao, indice, lista) =>
+          lista.findIndex((outro) => outro.quantidade_minima === escalao.quantidade_minima) === indice
+      );
+
     const campoConteudo = artigo.querySelector<HTMLTextAreaElement>("[data-pack-conteudo]");
     const conteudoPack = campoConteudo
       ? campoConteudo.value
@@ -856,7 +975,8 @@ function ligarEventos(artigo: HTMLElement, produto: Produto, isNovo = false): vo
         }))
         .filter((sabor) => sabor.nome !== ""),
       grupos_variantes: gruposVariantes,
-      tamanhos: tamanhosValidos
+      tamanhos: tamanhosValidos,
+      precos_quantidade: escaloesValidos
     };
 
     campos.imagens = [...galeria];
@@ -911,6 +1031,7 @@ function ligarEventos(artigo: HTMLElement, produto: Produto, isNovo = false): vo
           grupos_variantes?: GrupoVariante[];
           tamanhos?: VarianteTamanho[];
           conteudo?: string[];
+          precos_quantidade?: EscalaoPreco[];
         }
       });
 

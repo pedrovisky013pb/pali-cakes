@@ -9,7 +9,9 @@ export default defineConfig({
   // ativada, retirar estas duas linhas.
   redirects: {
     "/catalogo/cupcakes": "/catalogo/miniaturas",
-    "/catalogo/cupcakes/cupcakes": "/catalogo/miniaturas/cupcakes"
+    "/catalogo/cupcakes/cupcakes": "/catalogo/miniaturas/cupcakes",
+    "/catalogo/bolos-personalizados/bolo-brnaco-com-flores":
+      "/catalogo/bolos-personalizados/bolo-branco-com-flores"
   },
   integrations: [
     sitemap({

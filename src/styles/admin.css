@@ -592,6 +592,23 @@
   grid-template-columns: 56px 1.4fr 0.8fr 0.6fr auto;
 }
 
+.admin-flavor-row--tier {
+  grid-template-columns: 1fr 1fr auto;
+}
+
+.admin-flavor-row__tier-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.admin-flavor-row__tier-field input {
+  min-width: 0;
+}
+
 /* Galeria de fotos extra do produto */
 
 .admin-gallery {

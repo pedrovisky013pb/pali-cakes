@@ -28,7 +28,7 @@ export async function enviarContacto(
     return {
       ok: false,
       erro:
-        "Não foi possível enviar a mensagem. Tente novamente ou escreva directamente para geral@palicakes.pt."
+        "Não foi possível enviar a mensagem. Tente novamente ou escreva diretamente para geral@palicakes.pt."
     };
   }
 

@@ -1,8 +1,14 @@
 import {
   getCart,
+  getUnitPrice,
   saveCart,
   type CartItem
 } from "./cart";
+import {
+  QUANTIDADE_MAXIMA,
+  currentPriceTier,
+  nextPriceTier
+} from "@/lib/pricing";
 
 const currencyFormatter = new Intl.NumberFormat("pt-PT", {
   style: "currency",
@@ -33,22 +39,60 @@ function getItemHref(item: CartItem): string {
 }
 
 function formatItemPrice(item: CartItem): string {
-  if (item.price === null) {
+  const unitPrice = getUnitPrice(item);
+
+  if (unitPrice === null) {
     return item.priceLabel;
   }
 
   return currencyFormatter.format(
-    item.price * item.quantity
+    unitPrice * item.quantity
   );
+}
+
+/**
+ * Linha do preço por quantidade (ex.: "50 un. × 1,60 € (preço por
+ * quantidade)") e sugestão do escalão seguinte. Vazio nos outros produtos.
+ */
+function formatTierInfo(item: CartItem): string {
+  if (item.priceTiers.length === 0) {
+    return "";
+  }
+
+  const unitPrice = getUnitPrice(item);
+  const tier = currentPriceTier(item.priceTiers, item.quantity);
+  const next = nextPriceTier(item.priceTiers, item.quantity);
+
+  const linhas: string[] = [];
+
+  if (unitPrice !== null) {
+    linhas.push(
+      `${item.quantity} un. × ${currencyFormatter.format(unitPrice)}${
+        tier ? " (preço por quantidade)" : ""
+      }`
+    );
+  }
+
+  if (next) {
+    linhas.push(
+      `A partir de ${next.min} un., cada uma fica a ${currencyFormatter.format(next.price)}.`
+    );
+  }
+
+  return linhas
+    .map((linha) => `<small class="cart-item__tier">${escapeHtml(linha)}</small>`)
+    .join("");
 }
 
 function calculateKnownTotal(cart: CartItem[]): number {
   return cart.reduce((total, item) => {
-    if (item.price === null) {
+    const unitPrice = getUnitPrice(item);
+
+    if (unitPrice === null) {
       return total;
     }
 
-    return total + item.price * item.quantity;
+    return total + unitPrice * item.quantity;
   }, 0);
 }
 
@@ -143,6 +187,8 @@ function renderCartPage(): void {
                 ${price}
               </strong>
 
+              ${formatTierInfo(item)}
+
               ${
                 item.minQuantity > 1
                   ? `<small class="cart-item__minimum">Mínimo de ${item.minQuantity} unidades</small>`
@@ -172,13 +218,22 @@ function renderCartPage(): void {
               −
             </button>
 
-            <span>${item.quantity}</span>
+            <input
+              type="number"
+              inputmode="numeric"
+              min="${item.minQuantity}"
+              max="${QUANTIDADE_MAXIMA}"
+              step="1"
+              value="${item.quantity}"
+              aria-label="Quantidade"
+              data-cart-quantity-input
+            />
 
             <button
               type="button"
               aria-label="Aumentar quantidade"
               data-cart-action="increase"
-              ${item.quantity >= 99 ? "disabled" : ""}
+              ${item.quantity >= QUANTIDADE_MAXIMA ? "disabled" : ""}
             >
               +
             </button>
@@ -200,7 +255,7 @@ function renderCartPage(): void {
   );
 
   const hasItemsUnderQuote = cart.some(
-    (item) => item.price === null
+    (item) => getUnitPrice(item) === null
   );
 
   summaryNote.textContent = hasItemsUnderQuote
@@ -256,12 +311,48 @@ function handleCartAction(event: MouseEvent): void {
   }
 
   if (action === "increase") {
-    cart[itemIndex].quantity = Math.min(99, cart[itemIndex].quantity);
+    cart[itemIndex].quantity = Math.min(QUANTIDADE_MAXIMA, cart[itemIndex].quantity);
   }
 
   if (action === "remove") {
     cart.splice(itemIndex, 1);
   }
+
+  saveCart(cart);
+  renderCartPage();
+}
+
+/** Quantidade escrita à mão (útil em produtos com muitas unidades). */
+function handleQuantityInput(event: Event): void {
+  const input = event.target;
+
+  if (
+    !(input instanceof HTMLInputElement) ||
+    !input.matches("[data-cart-quantity-input]")
+  ) {
+    return;
+  }
+
+  const productId =
+    input.closest<HTMLElement>("[data-cart-item]")?.dataset.productId;
+
+  if (!productId) {
+    return;
+  }
+
+  const cart = getCart();
+  const item = cart.find((cartItem) => cartItem.id === productId);
+
+  if (!item) {
+    return;
+  }
+
+  const valor = Math.trunc(Number(input.value));
+
+  item.quantity = Math.min(
+    QUANTIDADE_MAXIMA,
+    Math.max(item.minQuantity, Number.isFinite(valor) ? valor : item.minQuantity)
+  );
 
   saveCart(cart);
   renderCartPage();
@@ -276,6 +367,7 @@ function initialiseCartPage(): void {
   }
 
   cartList.addEventListener("click", handleCartAction);
+  cartList.addEventListener("change", handleQuantityInput);
   renderCartPage();
 }
 

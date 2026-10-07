@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
-import type { VarianteSabor, GrupoVariante, VarianteTamanho } from "@/types/database";
+import type { VarianteSabor, GrupoVariante, VarianteTamanho, EscalaoPreco } from "@/types/database";
+import { normalizePriceTiers, type PriceTier } from "@/lib/pricing";
 
 export interface Product {
   id: string;
@@ -26,6 +27,8 @@ export interface Product {
   packContents: string[];
   /** "A partir de X €" quando o preço depende do sabor/tamanho; senão null. */
   cardPriceLabel: string | null;
+  /** Preço por quantidade (escalões). Vazio quando o preço não muda com a quantidade. */
+  quantityTiers: PriceTier[];
 }
 
 interface ProdutoRow {
@@ -46,6 +49,7 @@ interface ProdutoRow {
     grupos_variantes?: GrupoVariante[];
     tamanhos?: VarianteTamanho[];
     conteudo?: string[];
+    precos_quantidade?: EscalaoPreco[];
   } | null;
   quantidade_minima?: number | null;
 }
@@ -188,6 +192,7 @@ function toProduct(row: ProdutoRow): Product {
         : 1,
     sizes,
     cardPriceLabel: toCardPriceLabel(flavors, sizes),
+    quantityTiers: normalizePriceTiers(row.opcoes?.precos_quantidade),
     packContents: Array.isArray(row.opcoes?.conteudo)
       ? row.opcoes.conteudo
           .filter((linha): linha is string => typeof linha === "string")

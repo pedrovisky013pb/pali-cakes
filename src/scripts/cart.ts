@@ -1,3 +1,10 @@
+import {
+  QUANTIDADE_MAXIMA,
+  normalizePriceTiers,
+  unitPriceFor,
+  type PriceTier
+} from "@/lib/pricing";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -13,6 +20,8 @@ export interface CartItem {
   minQuantity: number;
   /** Tamanho escolhido (só em produtos com tamanhos com preço). */
   size: string | null;
+  /** Preço por quantidade (escalões). Vazio = o preço não muda com a quantidade. */
+  priceTiers: PriceTier[];
 }
 
 type NewCartItem = Omit<CartItem, "quantity">;
@@ -58,7 +67,7 @@ function normaliseCartItem(value: unknown): CartItem | null {
 
   const quantity =
     typeof value.quantity === "number" && Number.isFinite(value.quantity)
-      ? Math.min(99, Math.max(minQuantity, Math.trunc(value.quantity)))
+      ? Math.min(QUANTIDADE_MAXIMA, Math.max(minQuantity, Math.trunc(value.quantity)))
       : minQuantity;
 
   const price =
@@ -92,8 +101,17 @@ function normaliseCartItem(value: unknown): CartItem | null {
     size:
       typeof value.size === "string" && value.size.trim()
         ? value.size.trim().slice(0, 60)
-        : null
+        : null,
+    priceTiers: normalizePriceTiers(value.priceTiers)
   };
+}
+
+/**
+ * Preço por unidade do artigo, já com o preço por quantidade aplicado
+ * (ex.: 50 brigadeiros a 1,60 € em vez de 1,80 €). null = sob consulta.
+ */
+export function getUnitPrice(item: CartItem): number | null {
+  return unitPriceFor(item.price, item.priceTiers, item.quantity);
 }
 
 export function getCart(): CartItem[] {
@@ -162,7 +180,10 @@ export function buildCartItemId(productId: string, flavor: string | null): strin
 
 export function addToCart(item: NewCartItem, quantity = item.minQuantity): void {
   const cart = getCart();
-  const quantidade = Math.min(99, Math.max(item.minQuantity, Math.trunc(quantity)));
+  const quantidade = Math.min(
+    QUANTIDADE_MAXIMA,
+    Math.max(item.minQuantity, Math.trunc(quantity))
+  );
 
   const existingItem = cart.find(
     (cartItem) => cartItem.id === item.id
@@ -170,7 +191,9 @@ export function addToCart(item: NewCartItem, quantity = item.minQuantity): void 
 
   if (existingItem) {
     existingItem.minQuantity = item.minQuantity;
-    existingItem.quantity = Math.min(99, existingItem.quantity + quantidade);
+    existingItem.price = item.price;
+    existingItem.priceTiers = item.priceTiers;
+    existingItem.quantity = Math.min(QUANTIDADE_MAXIMA, existingItem.quantity + quantidade);
   } else {
     cart.push({
       ...item,
@@ -234,7 +257,8 @@ function bindAddToCartButtons(): void {
           productFlavor,
           productMinQuantity,
           productQuantity,
-          productSize
+          productSize,
+          productPriceTiers
         } = button.dataset;
 
         if (
@@ -267,6 +291,15 @@ function bindAddToCartButtons(): void {
 
         const flavor = partes.length > 0 ? partes.join(" • ") : null;
 
+        let priceTiers: PriceTier[] = [];
+        try {
+          priceTiers = productPriceTiers
+            ? normalizePriceTiers(JSON.parse(productPriceTiers))
+            : [];
+        } catch {
+          priceTiers = [];
+        }
+
         const minimo = Math.max(1, Math.trunc(Number(productMinQuantity) || 1));
         const quantidade = Math.max(minimo, Math.trunc(Number(productQuantity) || minimo));
 
@@ -285,7 +318,8 @@ function bindAddToCartButtons(): void {
             productSlug,
             flavor,
             minQuantity: minimo,
-            size
+            size,
+            priceTiers
           },
           quantidade
         );

@@ -5,6 +5,7 @@ import MainLayout from "@/layouts/MainLayout.astro";
 
 import { getCategories, type CatalogCategory } from "@/lib/categories";
 import { getProducts, type Product } from "@/lib/products";
+import { QUANTIDADE_MAXIMA, priceTierRows } from "@/lib/pricing";
 
 
 export const getStaticPaths = (async () => {
@@ -69,6 +70,11 @@ const euro = new Intl.NumberFormat("pt-PT", {
 
 const formattedPrice =
   initialPrice !== null ? euro.format(initialPrice) : product.priceLabel;
+
+// Preço por quantidade (ex.: brigadeiros mais baratos a partir de 30 un.).
+const tierRows = priceTierRows(initialPrice, product.quantityTiers, initialMinQuantity);
+const hasTiers = tierRows.length > 0;
+const tiersJson = hasTiers ? JSON.stringify(product.quantityTiers) : "";
 
 const productSchema = {
   "@context": "https://schema.org",
@@ -192,9 +198,11 @@ const productSchema = {
 
 
 
-        <p class="product-detail__description">
-          {product.description}
-        </p>
+        {product.description && (
+          <p class="product-detail__description">
+            {product.description}
+          </p>
+        )}
 
 
 
@@ -327,6 +335,31 @@ const productSchema = {
 
 
 
+        {hasTiers && (
+          <div class="product-detail__tiers" data-price-tiers={tiersJson}>
+            <span class="product-detail__flavors-label">
+              Preço por quantidade
+            </span>
+
+            <ul>
+              {tierRows.map((row, index) => (
+                <li
+                  data-tier-row
+                  data-tier-min={row.min}
+                  class:list={{ "is-active": index === 0 }}
+                >
+                  <span>{row.label} un.</span>
+                  <strong>
+                    {row.price !== null ? `${euro.format(row.price)} / un.` : product.priceLabel}
+                  </strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+
+
         <div class="product-detail__quantity" data-quantity-picker>
           <span class="product-detail__flavors-label">
             Quantidade
@@ -346,7 +379,7 @@ const productSchema = {
               type="number"
               inputmode="numeric"
               min={initialMinQuantity}
-              max="99"
+              max={QUANTIDADE_MAXIMA}
               step="1"
               value={initialMinQuantity}
               aria-label="Quantidade"
@@ -369,6 +402,10 @@ const productSchema = {
           >
             Encomenda mínima: <span data-minimum-value>{initialMinQuantity}</span> unidades
           </small>
+
+          {hasTiers && (
+            <p class="product-detail__tier-note" data-tier-note aria-live="polite"></p>
+          )}
         </div>
 
 
@@ -405,6 +442,7 @@ const productSchema = {
             data-product-slug={product.slug}
             data-product-flavor={defaultFlavor ? `Sabor: ${defaultFlavor.nome}` : ""}
             data-product-min-quantity={initialMinQuantity}
+            data-product-price-tiers={tiersJson}
             data-product-quantity={initialMinQuantity}
             disabled={hasVariantGroups}
           >
