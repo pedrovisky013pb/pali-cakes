@@ -1,10 +1,10 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
-import { portfolioItems } from "../data/portfolio";
+import { getPortfolioItems } from "@/lib/portfolio";
 
-const activePortfolioItems = portfolioItems.filter(
-  (item) => item.active
-);
+// Trabalhos geridos no admin (Fotos do site → Portfólio), já ordenados e
+// agrupados por categoria.
+const activePortfolioItems = await getPortfolioItems();
 
 const portfolioCategories = [
   "Todos",

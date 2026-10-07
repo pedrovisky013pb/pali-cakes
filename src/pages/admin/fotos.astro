@@ -1,0 +1,115 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+---
+
+<MainLayout
+  title="Fotos do site | Pali Cakes"
+  description="Gestão das fotos do site."
+  noindex
+>
+  <section class="admin-page">
+    <div class="container">
+
+      <header class="admin-page__header">
+        <div>
+          <span class="section-title__eyebrow">Área reservada</span>
+          <h1>Fotos do site</h1>
+        </div>
+
+        <div class="admin-nav">
+          <a href="/admin/encomendas">Encomendas</a>
+          <a href="/admin/produtos">Produtos</a>
+          <a href="/admin/avaliacoes">Avaliações</a>
+          <a href="/admin/fotos" class="is-active">Fotos do site</a>
+          <a href="/admin/conta">Conta</a>
+          <button type="button" class="button button--secondary" data-logout>
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-publish">
+        <div>
+          <strong>Publicar alterações</strong>
+          <p>
+            As alterações que faz aqui só aparecem no site depois de publicar.
+            Demora cerca de 2 minutos.
+          </p>
+        </div>
+
+        <button type="button" class="button button--primary" data-publicar>
+          Publicar alterações
+        </button>
+      </div>
+
+      <p class="admin-publish__status" data-publicar-estado hidden></p>
+
+      <p class="admin-hint">
+        Tudo o que muda aqui fica guardado de imediato. Quando terminar,
+        carregue em <strong>Publicar alterações</strong>. As fotos dos produtos
+        mudam-se na aba Produtos.
+      </p>
+
+      <nav class="admin-photos-index" aria-label="Secções">
+        <a href="#fotos-paginas">Páginas</a>
+        <a href="#fotos-carrossel">Carrossel</a>
+        <a href="#fotos-portfolio">Portfólio</a>
+      </nav>
+
+      <section class="admin-photos-section" id="fotos-paginas">
+        <h2>Fotos das páginas</h2>
+        <p class="admin-photos-section__intro">
+          Topo da página inicial, secção "Sobre a Bruna" e página Sobre.
+        </p>
+
+        <div data-fotos-fixas>
+          <p class="admin-loading">A carregar fotos…</p>
+        </div>
+      </section>
+
+      <section class="admin-photos-section" id="fotos-carrossel">
+        <h2>Carrossel da página inicial</h2>
+        <p class="admin-photos-section__intro">
+          Os cartões que passam sozinhos no fim da página inicial, por cima do
+          rodapé. Cada cartão é uma categoria do catálogo.
+        </p>
+
+        <div class="admin-photo-grid" data-fotos-carrossel>
+          <p class="admin-loading">A carregar…</p>
+        </div>
+      </section>
+
+      <section class="admin-photos-section" id="fotos-portfolio">
+        <div class="admin-photos-section__header">
+          <div>
+            <h2>Portfólio</h2>
+            <p class="admin-photos-section__intro">
+              Os trabalhos aparecem agrupados por categoria. Use ↑ e ↓ para
+              mudar a ordem dentro da categoria.
+            </p>
+          </div>
+
+          <button type="button" class="button button--primary" data-novo-trabalho>
+            + Novo trabalho
+          </button>
+        </div>
+
+        <div class="admin-list-actions">
+          <select class="admin-search" data-portfolio-filtro aria-label="Filtrar por categoria">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+
+        <div data-portfolio-lista>
+          <p class="admin-loading">A carregar portfólio…</p>
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+  <script>
+    import "@/scripts/admin-fotos.ts";
+    import "@/scripts/admin-publicar.ts";
+  </script>
+</MainLayout>

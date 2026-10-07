@@ -275,8 +275,9 @@
 
 .admin-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.75rem 1.25rem;
 }
 
 .admin-nav a {
@@ -902,5 +903,238 @@
 
   .admin-publish button {
     width: 100%;
+  }
+}
+
+
+/* =========================
+   ADMIN — FOTOS DO SITE
+========================= */
+
+.admin-photos-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.admin-photos-index a {
+  padding: 0.5rem 1.1rem;
+
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.admin-photos-section {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 120px;
+}
+
+.admin-photos-section h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.6rem;
+}
+
+.admin-photos-section__intro {
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.admin-photos-section__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-photos-subtitle {
+  margin: 1.75rem 0 0.9rem;
+  font-size: 1.05rem;
+}
+
+.admin-photos-subtitle small {
+  margin-left: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+.admin-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1.25rem;
+}
+
+.admin-photo-card {
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.admin-photo-card__image {
+  aspect-ratio: 4 / 3;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.admin-photo-card__image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-photo-card__image img.is-broken,
+.admin-portfolio-item img.is-broken {
+  opacity: 0.15;
+}
+
+.admin-photo-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem;
+}
+
+.admin-photo-card__body > span:not(.admin-photo-card__status) {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+
+.admin-photo-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.admin-photo-card__actions label {
+  cursor: pointer;
+}
+
+.admin-photo-card__reset {
+  padding: 0;
+
+  background: none;
+  border: 0;
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  opacity: 0.7;
+}
+
+.admin-photo-card__status {
+  min-height: 1.2em;
+  color: var(--color-primary-dark);
+  font-size: 0.8rem;
+}
+
+.admin-photo-card__status.is-error {
+  color: #b3261e;
+}
+
+.admin-portfolio-group[hidden],
+.admin-portfolio-item [hidden] {
+  display: none !important;
+}
+
+.admin-portfolio-item {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1.25rem;
+
+  margin-bottom: 1rem;
+  padding: 1.1rem;
+
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.admin-portfolio-item.is-inactive {
+  opacity: 0.55;
+}
+
+.admin-portfolio-item.is-novo {
+  border: 2px dashed rgba(215, 162, 168, 0.55);
+  box-shadow: none;
+}
+
+.admin-portfolio-item__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 0.9rem 1rem;
+}
+
+.admin-portfolio-item__fields > [data-categoria-nova-campo],
+.admin-portfolio-item__fields > .admin-portfolio-item__actions,
+.admin-portfolio-item__fields > .admin-photo-card__status {
+  grid-column: 1 / -1;
+}
+
+.admin-portfolio-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
+.admin-portfolio-item__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.admin-portfolio-item__order {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.admin-portfolio-item__order button {
+  width: 36px;
+  height: 36px;
+
+  background: #fff;
+  border: 1px solid rgba(215, 162, 168, 0.5);
+  border-radius: 50%;
+  cursor: pointer;
+
+  font-size: 1rem;
+}
+
+.admin-portfolio-item__order button:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+@media (max-width: 620px) {
+  .admin-portfolio-item {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-portfolio-item .admin-product__image {
+    max-width: 220px;
+  }
+
+  .admin-portfolio-item__fields {
+    grid-template-columns: 1fr;
   }
 }

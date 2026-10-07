@@ -1,8 +1,12 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 
-const aboutImage = "/images/about/about-pali.JPG";
-const brunaImage = "/images/about/about-bruna.jpg";
+import { getSitePhotos } from "@/lib/site-photos";
+
+// Mudam-se no admin (Fotos do site → Página Sobre).
+const fotos = await getSitePhotos();
+const aboutImage = fotos["sobre-topo"];
+const brunaImage = fotos["sobre-bruna"];
 ---
 
 <MainLayout

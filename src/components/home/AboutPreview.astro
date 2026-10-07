@@ -1,5 +1,8 @@
 ---
-const brunaImage = "/images/about/about-pali.JPG";
+import { getSitePhotos } from "@/lib/site-photos";
+
+// Muda-se no admin (Fotos do site → Página inicial — Sobre a Bruna).
+const brunaImage = (await getSitePhotos())["inicio-sobre-bruna"];
 ---
 
 <section class="about-preview">

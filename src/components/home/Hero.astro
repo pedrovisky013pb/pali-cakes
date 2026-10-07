@@ -1,9 +1,14 @@
 ---
+import { getSitePhotos } from "@/lib/site-photos";
+
+// As 4 fotos do topo mudam-se no admin (Fotos do site → Página inicial — topo).
+const fotos = await getSitePhotos();
+
 const heroImages = [
-  { src: "/images/hero/hero-bolo-flores.jpg", alt: "Bolo artesanal com flores em pasta produzido pela Pali Cakes" },
-  { src: "/images/hero/hero-chocolates.jpg", alt: "Chocolates artesanais Pali Cakes" },
-  { src: "/images/hero/hero-cupcakes.jpg", alt: "Cupcakes personalizados produzidos pela Pali Cakes" },
-  { src: "/images/hero/hero-bolo-frutos.jpg", alt: "Bolo com frutos vermelhos produzido pela Pali Cakes" }
+  { src: fotos["inicio-topo-1"] },
+  { src: fotos["inicio-topo-2"] },
+  { src: fotos["inicio-topo-3"] },
+  { src: fotos["inicio-topo-4"] }
 ];
 ---
 
