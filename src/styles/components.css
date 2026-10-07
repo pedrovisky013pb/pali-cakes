@@ -428,6 +428,10 @@
 
   max-width: 1200px;
   margin-inline: auto;
+
+  /* Sem isto, em ecrãs até ~1240px (tablet, portáteis pequenos) o texto do
+     rodapé ficava encostado à borda do ecrã. */
+  padding-inline: 20px;
 }
 
 
@@ -444,6 +448,14 @@
 
 }
 
+
+/* Logo, frase da marca e redes sociais centrados na mesma coluna */
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
 .footer__brand p {
   max-width: 300px;
@@ -658,6 +670,7 @@
   .footer__social {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 
     /* Respiro entre a frase da marca e os botões das redes sociais */
