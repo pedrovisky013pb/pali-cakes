@@ -122,7 +122,9 @@
   }
 
   .product-detail__container {
-    grid-template-columns: 1fr;
+    /* minmax(0, …): a fila de miniaturas da galeria (packs com muitas
+       fotos) desliza na horizontal em vez de alargar a página. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 55px;
   }
 

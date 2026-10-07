@@ -50,6 +50,7 @@ const categoryProducts = await getProductsByCategory(slug);
   title={`${category.name} | Pali Cakes`}
   description={category.description || `Conheça as opções de ${category.name} da Pali Cakes.`}
   image={category.image || "/images/og-pali-cakes.jpg"}
+  noindex={categoryProducts.length === 0}
 >
   <section class="catalog-hero catalog-hero--category">
     <div class="container catalog-hero__container">

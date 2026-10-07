@@ -18,7 +18,9 @@ export default defineConfig({
       filter: (page) =>
         !page.includes("/carrinho") &&
         !page.includes("/finalizar-encomenda") &&
-        !page.includes("/admin")
+        !page.includes("/admin") &&
+        // Categoria oculta da navegação e ainda sem produtos.
+        !page.endsWith("/catalogo/doces/")
     })
   ],
   vite: {

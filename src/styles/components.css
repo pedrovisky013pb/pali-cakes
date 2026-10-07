@@ -4247,7 +4247,7 @@ body.menu-is-open {
   border-radius: 12px;
 
   color: var(--color-text);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   line-height: 1.7;
 }
 
@@ -4299,7 +4299,7 @@ body.menu-is-open {
 .reviews-form__rating legend {
   margin-bottom: 10px;
   color: var(--color-text);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
